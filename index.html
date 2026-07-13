@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web App Quản Lý Tool</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; background-color: #f4f4f9; }
+        .btn { padding: 15px 30px; font-size: 18px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .btn:hover { background-color: #218838; }
+        #thongBao { margin-top: 20px; font-size: 18px; color: #333; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <h1>Bảng Điều Khiển Web App</h1>
+    
+    <!-- Nút bấm gọi Python -->
+    <button class="btn" onclick="goiToolPython()">Quét Video & Tạo Content</button>
+
+    <!-- Nơi hiển thị kết quả trả về -->
+    <div id="thongBao">Trạng thái: Đang chờ lệnh...</div>
+
+    <script>
+        function goiToolPython() {
+            // Thay đổi chữ trên web cho người dùng biết
+            document.getElementById('thongBao').innerText = "Trạng thái: Tool đang chạy, vui lòng đợi...";
+
+            // Dùng 'fetch' để gọi điện đến cổng API của Python
+            fetch('http://127.0.0.1:5000/api/quet-video')
+                .then(response => response.json()) // Nhận kết quả từ Python
+                .then(data => {
+                    if(data.status === "thanh_cong") {
+                        // Hiển thị kết quả lên màn hình Web
+                        document.getElementById('thongBao').innerText = "Trạng thái: " + data.message;
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('thongBao').innerText = "Lỗi kết nối đến Server Python!";
+                });
+        }
+    </script>
+
+</body>
+</html>
