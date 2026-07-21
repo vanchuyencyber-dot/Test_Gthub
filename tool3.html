@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tool 3 - Multi Download & AI Voice Sync Pro</title>
+    <style>
+        /* CSS Reset & Biến màu sắc chuẩn CustomTkinter Dark Theme */
+        :root {
+            --bg-main: #242424;
+            --bg-frame: #2b2b2b;
+            --btn-blue: #1f6aa5;
+            --btn-blue-hover: #144870;
+            --btn-green: #2fa52f;
+            --btn-red: #c93434;
+            --btn-purple: #8a2be2;
+            --text-main: #cecece;
+            --text-cyan: #33ccff;
+            --border-color: #404040;
+        }
+
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg-main); color: var(--text-main); margin: 0; padding: 20px; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+        /* Tabs Con */
+        .sub-tabs { display: flex; justify-content: center; gap: 5px; margin-bottom: 20px; }
+        .sub-tab-btn { background-color: var(--bg-frame); color: var(--text-main); border: 1px solid var(--border-color); padding: 8px 15px; cursor: pointer; border-radius: 4px; font-size: 14px; transition: 0.2s; }
+        .sub-tab-btn.active { background-color: var(--btn-blue); border-color: var(--btn-blue); color: white; }
+
+        /* Container của các Tab */
+        .tab-content { display: none; flex: 1; flex-direction: column; overflow-y: auto; padding-right: 5px; }
+        .tab-content.active { display: flex; }
+
+        /* Tùy chỉnh thanh cuộn */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-main); }
+        ::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #777; }
+
+        /* Thành phần chung */
+        .btn { border: none; padding: 8px 15px; border-radius: 4px; color: white; cursor: pointer; font-size: 13px; font-weight: 500; }
+        .btn-blue { background-color: var(--btn-blue); }
+        .btn-blue:hover { background-color: var(--btn-blue-hover); }
+        .btn-green { background-color: var(--btn-green); padding: 10px 30px; font-size: 14px; }
+        .btn-red { background-color: var(--btn-red); padding: 10px 30px; font-size: 14px; }
+        .btn-purple { background-color: var(--btn-purple); padding: 10px 20px; }
+        
+        .action-row { display: flex; justify-content: center; gap: 20px; margin-top: 20px; margin-bottom: 20px; }
+        .status-text { text-align: center; margin-top: 15px; font-size: 13px; }
+        
+        /* Progress Bar */
+        .progress-container { width: 90%; margin: 10px auto; background-color: #404040; border-radius: 4px; height: 6px; overflow: hidden; }
+        .progress-bar { width: 0%; height: 100%; background-color: var(--btn-blue); transition: width 0.3s; }
+
+        /* Input & Elements */
+        textarea, input[type="text"], input[type="number"], select { background-color: #343638; color: white; border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 4px; outline: none; font-size: 13px; }
+        textarea { resize: none; width: 100%; height: 250px; }
+        .path-text { color: var(--text-cyan); font-size: 13px; margin-left: 10px; word-break: break-all; }
+
+        /* Bố cục Multi Edit */
+        .edit-container { display: flex; flex-direction: column; align-items: center; gap: 15px; max-width: 600px; margin: 0 auto; width: 100%; }
+        .row-center { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; }
+        
+        .cta-input { width: 100%; }
+        .wm-input { width: 300px; text-align: center; }
+
+        /* Checkbox */
+        .checkbox-label { display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; }
+        input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--btn-blue); cursor: pointer; }
+
+        /* Counter (Độ sáng / Tương phản) */
+        .counter-group { display: flex; align-items: center; justify-content: center; gap: 15px; margin: 5px 0; }
+        .counter-label { width: 80px; text-align: right; font-size: 13px; }
+        .counter-val { width: 30px; text-align: center; font-size: 13px; }
+        .btn-plus { background-color: var(--btn-blue); color: white; border: none; width: 28px; height: 28px; border-radius: 4px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
+
+        /* Slider */
+        .slider-container { display: flex; flex-direction: column; align-items: center; width: 200px; margin: 10px 0; }
+        input[type="range"] { -webkit-appearance: none; width: 100%; background: transparent; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%; background: var(--text-cyan); cursor: pointer; margin-top: -5px; }
+        input[type="range"]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #555; border-radius: 2px; }
+    </style>
+</head>
+<body>
+
+    <!-- Nút chuyển Tab Con -->
+    <div class="sub-tabs">
+        <button class="sub-tab-btn active" onclick="switchSubTab('dl')">Multi Download</button>
+        <button class="sub-tab-btn" onclick="switchSubTab('ed')">Multi Edit</button>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 1: MULTI DOWNLOAD -->
+    <!-- ========================================== -->
+    <div id="tab-dl" class="tab-content active">
+        <textarea placeholder="Nhập link video/kênh vào đây..."></textarea>
+        
+        <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px; padding: 0 20px;">
+            <div style="display: flex; align-items: center;">
+                <button class="btn btn-blue" onclick="selectFolder('dl')">Chọn Thư Mục Lưu Video</button>
+                <span class="path-text" id="path-dl">C:\Users\Home\Desktop\edit\downloads</span>
+            </div>
+            
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <span style="font-size: 13px;">Số video/kênh:</span>
+                <input type="number" value="4" style="width: 100px;">
+            </div>
+        </div>
+
+        <div style="margin-top: auto;">
+            <div class="status-text" id="status-dl">Sẵn sàng | Video: 0/0 | 0%</div>
+            <div class="progress-container"><div class="progress-bar" id="prog-dl"></div></div>
+            <div class="action-row">
+                <button class="btn btn-green" onclick="simulateProgress('dl')">Download</button>
+                <button class="btn btn-red" onclick="stopProgress('dl')">DỪNG</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 2: MULTI EDIT -->
+    <!-- ========================================== -->
+    <div id="tab-ed" class="tab-content">
+        <div class="edit-container">
+            
+            <button class="btn btn-purple" onclick="autoSetParams()">🚀 TỰ ĐỘNG CHỈNH THÔNG SỐ</button>
+            
+            <div style="text-align: center;">
+                <button class="btn btn-blue" onclick="selectFolder('in')">Mở Thư mục Video chưa edit</button>
+                <div class="path-text" id="path-in" style="margin: 5px 0 10px 0;">No Folder...</div>
+                
+                <button class="btn btn-blue" onclick="selectFolder('out')">Chọn thư mục lưu Video đã edit</button>
+                <div class="path-text" id="path-out" style="margin: 5px 0 0 0;">No Folder...</div>
+            </div>
+
+            <!-- Dòng Bật AI & Chọn Giọng -->
+            <div class="row-center">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="chk-ai">
+                    Bật AI (Xóa sạch âm gốc + Sub cắt cụm + TTS Đồng Bộ)
+                </label>
+                <select id="voice-select" style="width: 180px;">
+                    <option>vi-VN-HoaiMyNeural</option>
+                    <option>vi-VN-NamMinhNeural</option>
+                    <option>en-US-ChristopherNeural</option>
+                    <option>en-US-JennyNeural</option>
+                    <option>ko-KR-SunHiNeural</option>
+                    <option>ko-KR-InJoonNeural</option>
+                </select>
+            </div>
+
+            <!-- Các Input Text -->
+            <input type="text" class="cta-input" placeholder="Nhập lời kêu gọi (CTA) đọc ở cuối video (VD: Nhớ thả tim nhé!)...">
+            <input type="text" class="wm-input" placeholder="Watermark...">
+
+            <!-- Lật & Số -->
+            <div class="row-center">
+                <label class="checkbox-label"><input type="checkbox" id="chk-hflip" checked> Lật Ngang</label>
+                <label class="checkbox-label" style="margin-left: 20px;"><input type="checkbox" id="chk-vflip"> Lật Dọc</label>
+            </div>
+
+            <div class="counter-group">
+                <div class="counter-label">Độ Sáng</div>
+                <div class="counter-val" id="val-bright">1</div>
+                <button class="btn-plus" onclick="updateCounter('bright')">+</button>
+            </div>
+
+            <div class="counter-group">
+                <div class="counter-label">Tương Phản</div>
+                <div class="counter-val" id="val-contrast">1</div>
+                <button class="btn-plus" onclick="updateCounter('contrast')">+</button>
+            </div>
+
+            <!-- Slider Zoom -->
+            <div class="slider-container">
+                <div id="lbl-zoom" style="font-size: 13px; margin-bottom: 5px;">Zoom: 5%</div>
+                <input type="range" id="slider-zoom" min="1" max="20" value="5" oninput="updateZoom()">
+            </div>
+
+        </div>
+
+        <div style="margin-top: auto;">
+            <div class="status-text" id="status-ed">Đã Edit: 0/0 video | 0%</div>
+            <div class="progress-container"><div class="progress-bar" id="prog-ed"></div></div>
+            <div class="action-row">
+                <button class="btn btn-green" onclick="simulateProgress('ed')">Edit</button>
+                <button class="btn btn-red" onclick="stopProgress('ed')">DỪNG</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LOGIC JAVASCRIPT -->
+    <script>
+        // Chuyển tab con
+        function switchSubTab(tabId) {
+            document.querySelectorAll('.sub-tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            
+            if(tabId === 'dl') {
+                document.querySelectorAll('.sub-tab-btn')[0].classList.add('active');
+                document.getElementById('tab-dl').classList.add('active');
+            } else {
+                document.querySelectorAll('.sub-tab-btn')[1].classList.add('active');
+                document.getElementById('tab-ed').classList.add('active');
+            }
+        }
+
+        // Chọn thư mục (Giả lập)
+        function selectFolder(type) {
+            const paths = {
+                'dl': 'C:\\Users\\Home\\Downloads\\TikTok_Batch',
+                'in': 'C:\\Users\\Home\\Desktop\\Raw_Videos',
+                'out': 'C:\\Users\\Home\\Desktop\\Edited_Videos'
+            };
+            document.getElementById(`path-${type}`).innerText = paths[type];
+            document.getElementById(`path-${type}`).style.color = "#33ccff";
+        }
+
+        // Nút Tự Động Chỉnh Thông Số (Màu Tím)
+        function autoSetParams() {
+            document.getElementById('chk-hflip').checked = true;
+            document.getElementById('val-bright').innerText = "2";
+            document.getElementById('val-contrast').innerText = "2";
+            document.getElementById('slider-zoom').value = 3;
+            updateZoom();
+            alert("Đã thiết lập thông số vượt bản quyền an toàn!");
+        }
+
+        // Tăng giảm số (Mô phỏng)
+        function updateCounter(type) {
+            const el = document.getElementById(`val-${type}`);
+            let current = parseInt(el.innerText);
+            el.innerText = current + 1;
+        }
+
+        // Cập nhật text Slider Zoom
+        function updateZoom() {
+            const val = document.getElementById('slider-zoom').value;
+            document.getElementById('lbl-zoom').innerText = `Zoom: ${val}%`;
+        }
+
+        // --- GIẢ LẬP TIẾN TRÌNH (UI TEST) ---
+        let intervals = { dl: null, ed: null };
+        function simulateProgress(type) {
+            const progBar = document.getElementById(`prog-${type}`);
+            const status = document.getElementById(`status-${type}`);
+            let progress = 0;
+            
+            if(intervals[type]) clearInterval(intervals[type]);
+            
+            intervals[type] = setInterval(() => {
+                progress += 5;
+                progBar.style.width = `${progress}%`;
+                if(type === 'dl') {
+                    status.innerText = `Đang xử lý | Video: ${Math.floor(progress/25)}/4 | ${progress}%`;
+                } else {
+                    status.innerText = `Đang Render AI | Video: ${Math.floor(progress/10)}/10 | ${progress}%`;
+                }
+
+                if (progress >= 100) {
+                    clearInterval(intervals[type]);
+                    status.innerText = type === 'dl' ? "✨ Hoàn tất tải đa luồng!" : "✨ Đã hoàn thành 100% quá trình Edit!";
+                }
+            }, 300);
+        }
+
+        function stopProgress(type) {
+            if(intervals[type]) {
+                clearInterval(intervals[type]);
+                document.getElementById(`status-${type}`).innerText = "⚠️ Đã nhận lệnh Dừng!";
+            }
+        }
+    </script>
+</body>
+</html>

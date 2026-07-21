@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <!-- Thẻ meta cực kỳ quan trọng để giao diện tương thích với kích thước màn hình điện thoại -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tool 1 - Group (Mobile Pro)</title>
+    <style>
+        /* CSS Reset & Biến màu sắc chuẩn Dark Theme */
+        :root {
+            --bg-main: #1a1a1a;
+            --bg-frame: #252525;
+            --text-main: #E0E0E0;
+            --border-color: #333;
+            --btn-blue: #1f6aa5;
+            --btn-green: #2ecc71;
+            --btn-red: #e74c3c;
+            --accent: #3b82f6;
+        }
+
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
+        body { background-color: var(--bg-main); color: var(--text-main); padding: 15px; display: flex; flex-direction: column; height: 100vh; overflow-y: auto; overflow-x: hidden; }
+
+        /* Cụm Tabs trên cùng */
+        .top-tabs { display: flex; justify-content: center; gap: 5px; margin-bottom: 15px; }
+        .top-tabs button { flex: 1; max-width: 120px; background-color: var(--bg-frame); color: var(--text-main); border: 1px solid var(--border-color); padding: 10px; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 13px; transition: 0.2s; }
+        .top-tabs button.active { background-color: var(--accent); border-color: var(--accent); color: white; }
+        
+        h1 { text-align: center; margin-bottom: 20px; font-size: 20px; color: #fff; }
+
+        /* Khung chọn tài khoản */
+        .account-selector { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; font-weight: bold; font-size: 14px; background: var(--bg-frame); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); }
+        .account-selector select { width: 100%; padding: 12px; background-color: #121212; color: white; border: 1px solid var(--border-color); border-radius: 4px; outline: none; font-size: 14px; }
+
+        /* Bố cục chính (Grid/Flex) */
+        .main-content { display: flex; gap: 15px; flex-wrap: wrap; }
+
+        /* Các khối (Cards) */
+        .card { background-color: var(--bg-frame); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; display: flex; flex-direction: column; width: 100%; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-weight: bold; font-size: 14px; color: #fff; }
+
+        /* Cột trái: Danh sách nhóm (Sẽ giới hạn chiều cao trên Mobile để cuộn) */
+        .group-list-container { height: 250px; overflow-y: auto; background-color: #121212; border: 1px solid var(--border-color); border-radius: 4px; padding: 10px; }
+        .group-item { display: flex; align-items: center; margin-bottom: 12px; }
+        .group-item input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--accent); margin-right: 10px; }
+        .group-item label { font-size: 14px; cursor: pointer; flex: 1; word-break: break-word; }
+
+        /* Tùy chỉnh thanh cuộn Mobile */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-main); }
+        ::-webkit-scrollbar-thumb { background: #555; border-radius: 3px; }
+
+        /* Cột giữa: Cấu hình */
+        .config-group { margin-bottom: 15px; }
+        .config-group label { display: block; font-weight: bold; font-size: 13px; margin-bottom: 8px; color: #bbb; }
+        .text-content { width: 100%; height: 120px; resize: none; background-color: #121212; color: white; border: 1px solid var(--border-color); border-radius: 4px; padding: 10px; font-size: 14px; line-height: 1.5; }
+        
+        .media-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .btn-attach { background-color: #444; color: white; border: none; padding: 10px 15px; cursor: pointer; border-radius: 4px; font-size: 13px; }
+        .btn-clear { background-color: var(--btn-red); color: white; border: none; padding: 10px 15px; cursor: pointer; border-radius: 4px; font-weight: bold; }
+        
+        .inline-config { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 14px; margin-top: 10px; }
+        .inline-config input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--accent); }
+        .inline-config input[type="number"] { width: 60px; text-align: center; padding: 8px; background: #121212; color: white; border: 1px solid var(--border-color); border-radius: 4px; font-size: 14px; }
+        
+        .timer-text { color: var(--btn-red); font-weight: bold; font-size: 14px; width: 100%; text-align: right; margin-top: 10px; }
+
+        /* Nút Thực thi */
+        .action-buttons { display: flex; gap: 10px; margin-top: 20px; }
+        .btn-start, .btn-stop { flex: 1; color: white; border: none; padding: 15px; font-weight: bold; font-size: 16px; border-radius: 4px; cursor: pointer; text-transform: uppercase; }
+        .btn-start { background-color: var(--btn-green); }
+        .btn-stop { background-color: var(--btn-red); }
+
+        /* Log / Status */
+        .status-box { width: 100%; height: 150px; background-color: #000; color: #00ff00; border: 1px solid var(--border-color); border-radius: 4px; padding: 10px; font-size: 13px; font-family: monospace; overflow-y: auto; resize: none; line-height: 1.4; outline: none; }
+        
+        /* CSS Dành riêng cho màn hình Desktop (Màn hình rộng) */
+        @media (min-width: 900px) {
+            body { overflow: hidden; }
+            .account-selector { flex-direction: row; align-items: center; }
+            .main-content { flex-wrap: nowrap; height: calc(100vh - 280px); }
+            .card { flex: 1; height: 100%; overflow-y: auto; }
+            .card.left-col { max-width: 300px; }
+            .card.right-col { max-width: 300px; }
+            .group-list-container { height: calc(100% - 40px); }
+            .status-box { height: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Tabs nội bộ -->
+    <div class="top-tabs">
+        <button>LOGIN</button>
+        <button class="active">GROUP</button>
+        <button>FANPAGE</button>
+    </div>
+
+    <h1>🚀 Group Automation</h1>
+
+    <!-- Khung chọn tài khoản -->
+    <div class="account-selector">
+        <label>Tài khoản đang điều khiển:</label>
+        <select id="acc-select">
+            <option>Chưa có tài khoản nào Login</option>
+            <option>Bé mủm mỉm (Via1)</option>
+        </select>
+    </div>
+
+    <!-- Bố cục lưới tự động thích ứng (Mobile = Xếp chồng | PC = 3 Cột) -->
+    <div class="main-content">
+        
+        <!-- CỘT TRÁI: DANH SÁCH NHÓM -->
+        <div class="card left-col">
+            <div class="card-header">
+                <span>Danh sách nhóm (0)</span>
+                <button class="btn-start" style="padding: 8px 15px; font-size: 12px; background: var(--accent);" onclick="triggerScan()">Quét Lại</button>
+            </div>
+            <div class="group-list-container" id="group-list">
+                <!-- Javascript sẽ render danh sách checkbox nhóm vào đây -->
+                <div style="color: gray; text-align: center; margin-top: 50px;">Bấm Quét để lấy danh sách...</div>
+            </div>
+        </div>
+
+        <!-- CỘT GIỮA: NỘI DUNG & CẤU HÌNH -->
+        <div class="card mid-col">
+            <div class="config-group">
+                <label>Nội dung Spin [a|b]:</label>
+                <textarea class="text-content" id="txt-content">[ Xin chào | Chào mọi người ] [ Icon ]&#10;Nội dung có bộ random</textarea>
+            </div>
+            
+            <div class="config-group media-row">
+                <button class="btn-attach" onclick="triggerAttach()">📸 Đính kèm Ảnh/Video</button>
+                <button class="btn-clear" onclick="triggerClear()">X</button>
+                <span style="color: gray; font-size: 13px; margin-top: 5px;" id="lbl-media">Chưa chọn file...</span>
+            </div>
+
+            <div class="config-group inline-config">
+                <input type="checkbox" id="chk-comment"> 
+                <label for="chk-comment" style="margin:0; color: white;">Comments dạo</label>
+                <span style="margin-left: 10px;">Số bài:</span>
+                <input type="number" id="num-cmt" value="5">
+            </div>
+
+            <div class="config-group inline-config">
+                <input type="checkbox" id="chk-post" checked> 
+                <label for="chk-post" style="margin:0; color: white;">Post bài vào nhóm</label>
+            </div>
+
+            <div class="config-group inline-config">
+                <span>Delay (giây):</span>
+                <input type="number" id="delay-min" value="250"> - <input type="number" id="delay-max" value="300">
+                <div class="timer-text" id="lbl-timer">Timer: --:--</div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn-start" onclick="triggerStart()">THỰC THI</button>
+                <button class="btn-stop" onclick="triggerStop()">DỪNG</button>
+            </div>
+        </div>
+
+        <!-- CỘT PHẢI & LOG TỔNG (Gộp chung trên Mobile cho gọn) -->
+        <div class="card right-col">
+            <div class="card-header">
+                <span>Cửa sổ Log (VPS Console)</span>
+            </div>
+            <textarea class="status-box" id="txt-global-status" readonly>[Hệ thống] Đang kết nối tới máy chủ VPS...&#10;</textarea>
+        </div>
+
+    </div>
+
+    <!-- Logic JavaScript (Đã tích hợp tối ưu) -->
+    <script>
+        function writeLog(msg) {
+            const logBox = document.getElementById('txt-global-status');
+            const time = new Date().toLocaleTimeString();
+            logBox.value += `[${time}] ${msg}\n`;
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+
+        function triggerScan() {
+            const acc = document.getElementById('acc-select').value;
+            writeLog(`Bắt đầu cào danh sách nhóm cho ${acc}...`);
+            
+            // Giả lập API delay 1.5s
+            setTimeout(() => {
+                const groupList = document.getElementById('group-list');
+                groupList.innerHTML = '';
+                for(let i=1; i<=15; i++) {
+                    groupList.innerHTML += `
+                        <div class="group-item">
+                            <input type="checkbox" id="gr-${i}" value="url-${i}">
+                            <label for="gr-${i}">Hội Yêu Mèo Khắp Nơi - Nhóm ${i}</label>
+                        </div>
+                    `;
+                }
+                document.querySelector('.card-header span').innerText = `Danh sách nhóm (15)`;
+                writeLog(`✅ Quét thành công 15 nhóm!`);
+            }, 1500);
+        }
+
+        function triggerAttach() {
+            document.getElementById('lbl-media').innerText = "Đã tải lên 2 tệp media";
+            document.getElementById('lbl-media').style.color = "var(--btn-green)";
+        }
+
+        function triggerClear() {
+            document.getElementById('lbl-media').innerText = "Chưa chọn file...";
+            document.getElementById('lbl-media').style.color = "gray";
+        }
+
+        function triggerStart() {
+            const doPost = document.getElementById('chk-post').checked;
+            const doCmt = document.getElementById('chk-comment').checked;
+            
+            if(!doPost && !doCmt) {
+                writeLog("❌ LỖI: Vui lòng chọn ít nhất 1 hành động (Post hoặc Comment)!");
+                return;
+            }
+
+            writeLog("⏳ Đã đẩy lệnh lên VPS. Đang mở trình duyệt ngầm...");
+            setTimeout(() => {
+                writeLog("➤ Đang xử lý nhóm 1/15: Hội Yêu Mèo Khắp Nơi...");
+            }, 1000);
+        }
+
+        function triggerStop() {
+            writeLog("⚠️ Đã gửi tín hiệu ngắt Playwright khẩn cấp!");
+        }
+    </script>
+</body>
+</html>

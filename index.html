@@ -3,86 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Facebook Automation Dashboard</title>
+    <title>Super Automation Dashboard - 4 Tools in 1</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; margin: 0; padding: 15px; }
-        .card { background: white; border-radius: 10px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        h2 { margin-top: 0; color: #1877f2; }
-        label { font-weight: bold; display: block; margin-top: 10px; font-size: 14px; }
-        input, select, textarea { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
-        button { flex: 1; padding: 12px; border: none; border-radius: 5px; color: white; font-weight: bold; cursor: pointer; }
-        .btn-start { background-color: #2ecc71; }
-        .btn-stop { background-color: #e74c3c; }
-        .btn-schedule { background-color: #f39c12; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #121212; color: #E0E0E0; display: flex; height: 100vh; overflow: hidden; }
         
-        /* Màn hình Log Console đen chữ xanh */
-        .console-box { background-color: #1e1e1e; color: #00ff00; height: 200px; overflow-y: auto; padding: 10px; font-family: monospace; border-radius: 5px; font-size: 13px; line-height: 1.5; margin-top: 10px; }
+        /* Cột Menu bên trái */
+        .sidebar { width: 260px; background-color: #1E1E1E; border-right: 1px solid #2D2D2D; display: flex; flex-direction: column; }
+        .sidebar-header { padding: 20px; font-size: 16px; font-weight: bold; color: #00FFCC; background-color: #161616; border-bottom: 1px solid #2D2D2D; text-align: center; }
+        
+        .tab-btn { padding: 15px 20px; text-align: left; background: none; border: none; color: #AAAAAA; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; border-left: 4px solid transparent; }
+        .tab-btn:hover { background-color: #252525; color: #FFFFFF; }
+        .tab-btn.active { background-color: #2A2A2A; color: #00FFCC; border-left-color: #00FFCC; }
+
+        /* Vùng hiển thị nội dung Tab chính bên phải */
+        .content-area { flex: 1; background-color: #121212; position: relative; }
+        .tab-frame { width: 100%; height: 100%; border: none; display: none; }
+        .tab-frame.active { display: block; }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <h2>🚀 Trạm Điều Khiển 24/7</h2>
-        
-        <label>Chọn Tài Khoản (Dữ liệu từ Sheet):</label>
-        <select id="accountList">
-            <option value="Bé mủm mỉm">Bé mủm mỉm</option>
-            <option value="Cá Cắn Câu">Cá Cắn Câu</option>
-        </select>
-
-        <label>Nội dung Spin:</label>
-        <textarea id="content" rows="3">[Tuyệt vời|Quá hay] [Icon] bài viết rất hữu ích!</textarea>
-
-        <label>Hẹn giờ chạy (Bỏ trống nếu muốn chạy ngay):</label>
-        <input type="datetime-local" id="scheduleTime">
-
-        <div class="btn-group">
-            <button class="btn-start" onclick="sendCommand('start')">▶ CHẠY NGAY</button>
-            <button class="btn-schedule" onclick="sendCommand('schedule')">⏰ HẸN GIỜ</button>
-            <button class="btn-stop" onclick="sendCommand('stop')">🛑 DỪNG LẠI</button>
-        </div>
+    <!-- Thanh Menu Trái -->
+    <div class="sidebar">
+        <div class="sidebar-header">🚀 CONTROL PANEL</div>
+        <button class="tab-btn active" onclick="switchTab(0, 'tool1.html')">1. Facebook Automation</button>
+        <button class="tab-btn" onclick="switchTab(1, 'tool2.html')">2. Affiliate & Drive Auto</button>
+        <button class="tab-btn" onclick="switchTab(2, 'tool3.html')">3. Multi Down & AI Voice</button>
+        <button class="tab-btn" onclick="switchTab(3, 'tool4.html')">4. CapCut Video Editor</button>
     </div>
 
-    <div class="card">
-        <h2>📟 Trạng Thái Hệ Thống</h2>
-        <div class="console-box" id="logConsole">
-            Đang chờ kết nối với VPS...
-        </div>
+    <!-- Khung chứa các file HTML độc lập -->
+    <div class="content-area">
+        <iframe id="frame0" class="tab-frame active" src="tool1.html"></iframe>
+        <iframe id="frame1" class="tab-frame" src="tool2.html"></iframe>
+        <iframe id="frame2" class="tab-frame" src="tool3.html"></iframe>
+        <iframe id="frame3" class="tab-frame" src="tool4.html"></iframe>
     </div>
 
     <script>
-        // Sửa lại bằng link Ngrok của bạn
-        const API_URL = 'https://YOUR_NGROK_LINK.ngrok-free.app/api';
-
-        function sendCommand(action) {
-            const payload = {
-                action: action,
-                account: document.getElementById('accountList').value,
-                content: document.getElementById('content').value,
-                schedule_time: document.getElementById('scheduleTime').value
-            };
-
-            fetch(`${API_URL}/control`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            })
-            .then(res => res.json())
-            .then(data => alert('Lệnh đã được gửi: ' + data.message))
-            .catch(err => alert('Lỗi kết nối đến VPS!'));
-        }
-
-        // Tự động kéo Log từ VPS về mỗi 3 giây
-        setInterval(() => {
-            fetch(`${API_URL}/logs`)
-            .then(res => res.text())
-            .then(logs => {
-                const consoleBox = document.getElementById('logConsole');
-                consoleBox.innerHTML = logs.replace(/\n/g, '<br>');
-                consoleBox.scrollTop = consoleBox.scrollHeight; // Tự động cuộn xuống dưới cùng
+        function switchTab(index, filename) {
+            // Chuyển đổi trạng thái nút bấm Menu
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach((btn, idx) => {
+                if (idx === index) btn.classList.add('active');
+                else btn.classList.remove('active');
             });
-        }, 3000);
+
+            // Chuyển đổi hiển thị các Iframe tương ứng
+            const frames = document.querySelectorAll('.tab-frame');
+            frames.forEach((frame, idx) => {
+                if (idx === index) {
+                    frame.classList.add('active');
+                    // Tự động load lại file nếu cần refresh data mới
+                    if(!frame.src.endsWith(filename)) frame.src = filename;
+                } else {
+                    frame.classList.remove('active');
+                }
+            });
+        }
     </script>
 </body>
 </html>

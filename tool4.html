@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tool 4 - AI Video Localization Pro</title>
+    <style>
+        /* CSS Reset & Cơ bản */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #1a1a1a; color: #E0E0E0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; padding: 10px; gap: 10px; }
+
+        /* Top Bar */
+        .top-bar { display: flex; gap: 5px; height: 35px; }
+        .top-btn { flex: 1; background-color: #f0f0f0; color: #111; border: 1px solid #ccc; font-weight: 500; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; }
+        .top-btn:hover { background-color: #e0e0e0; }
+        .top-select { flex: 1; background-color: #f0f0f0; color: #111; border: 1px solid #ccc; font-weight: 500; font-size: 13px; padding: 0 10px; outline: none; }
+
+        /* Middle Section (Video + Subtitles) */
+        .middle-section { display: flex; gap: 10px; height: 50vh; }
+        
+        /* Video Monitor */
+        .video-container { flex: 6; display: flex; flex-direction: column; background-color: #121212; border: 1px solid #333; }
+        .video-player { flex: 1; background-color: black; position: relative; }
+        
+        /* Video Controls */
+        .video-controls { display: flex; align-items: center; gap: 5px; padding: 5px; background-color: #1a1a1a; border-top: 1px solid #333; }
+        .ctrl-btn { background-color: #f0f0f0; color: #111; border: 1px solid #ccc; padding: 5px 10px; font-size: 12px; cursor: pointer; }
+        .ctrl-btn-green { background-color: #2D5A27; color: white; border: 1px solid #1e3d1a; padding: 5px 10px; font-size: 12px; cursor: pointer; }
+        .ctrl-btn-red { background-color: #8B0000; color: white; border: 1px solid #5a0000; padding: 5px 10px; font-size: 12px; cursor: pointer; }
+        
+        .slider-container { flex: 1; display: flex; align-items: center; padding: 0 10px; }
+        input[type="range"] { -webkit-appearance: none; width: 100%; background: transparent; }
+        input[type="range"]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: #555; border-radius: 2px; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 8px; background: #00FFCC; cursor: pointer; margin-top: -6px; }
+        .time-label { font-size: 11px; color: #888; white-space: nowrap; }
+
+        /* Subtitle Panel */
+        .subtitle-panel { flex: 4; display: flex; flex-direction: column; background-color: #fff; border: 1px solid #333; }
+        .sub-table-container { flex: 1; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; color: #000; }
+        th { background-color: #f8f8f8; padding: 8px; border-bottom: 1px solid #ddd; border-right: 1px solid #ddd; font-weight: normal; color: #333; }
+        td { padding: 8px; border-bottom: 1px solid #ddd; border-right: 1px solid #ddd; vertical-align: top; }
+        td:last-child, th:last-child { border-right: none; }
+        .sub-input { width: 100%; border: none; outline: none; font-size: 12px; font-family: inherit; resize: none; overflow: hidden; }
+        
+        .btn-update-timeline { background-color: #f0f0f0; color: #111; border: 1px solid #ccc; border-top: none; padding: 5px; font-size: 12px; cursor: pointer; width: 100%; text-align: center; }
+        .btn-update-timeline:hover { background-color: #e0e0e0; }
+
+        /* Timeline Section */
+        .timeline-section { flex: 1; display: flex; flex-direction: column; gap: 8px; background-color: #1a1a1a; overflow-y: auto; padding-top: 5px; }
+        .track { height: 60px; border-radius: 4px; border: 1px solid #444; position: relative; display: flex; align-items: center; padding-left: 10px; overflow: hidden; }
+        .track-video { background-color: #252525; }
+        .track-sub { background-color: #1A3A3A; }
+        .track-voice { background-color: #3A1A3A; }
+        
+        .track-label { font-size: 11px; font-weight: bold; color: #AAA; display: flex; align-items: center; gap: 5px; z-index: 10; width: 150px; background: inherit; }
+        
+        /* Mock Timeline Blocks */
+        .timeline-block { position: absolute; height: 30px; border-radius: 3px; display: flex; align-items: center; padding: 0 5px; font-size: 10px; color: white; white-space: nowrap; overflow: hidden; }
+        .block-vid { background-color: #444; border: 1px solid #666; top: 15px; left: 160px; width: 80%; }
+        .block-sub { background-color: #0088AA; border: 1px solid #00AAFF; top: 15px; }
+        .block-voice { background-color: #8800AA; border: 1px solid #FF00FF; top: 15px; }
+
+        /* Playhead */
+        .playhead { position: absolute; width: 2px; height: 100%; background-color: #00FFCC; left: 160px; z-index: 20; display: none; }
+    </style>
+</head>
+<body>
+
+    <!-- TOP BAR -->
+    <div class="top-bar">
+        <button class="top-btn" onclick="importVideo()">📥 Nhập Video</button>
+        <select class="top-select">
+            <option>vi-VN-HoaiMyNeural (Nữ)</option>
+            <option>vi-VN-NamMinhNeural (Nam)</option>
+            <option>en-US-GuyNeural (Nam)</option>
+        </select>
+        <button class="top-btn" id="btn-ai" onclick="runAIPipeline()">⚡ Chạy Tự Động Toàn Quy Trình (AI)</button>
+        <button class="top-btn" onclick="renderVideo()">🎬 Xuất Video Thành Phẩm</button>
+    </div>
+
+    <!-- MIDDLE SECTION -->
+    <div class="middle-section">
+        
+        <!-- Video Monitor -->
+        <div class="video-container">
+            <div class="video-player">
+                <!-- Video Placeholder -->
+            </div>
+            
+            <div class="video-controls">
+                <button class="ctrl-btn">▶ Chạy</button>
+                <button class="ctrl-btn">🔊 Tắt tiếng gốc</button>
+                <button class="ctrl-btn-green">➕ Thêm Khung Che</button>
+                <button class="ctrl-btn-red">🗑 Xóa Khung Che</button>
+                
+                <div class="slider-container">
+                    <input type="range" min="0" max="100" value="0">
+                </div>
+                <div class="time-label">00:00 / 00:00</div>
+            </div>
+        </div>
+
+        <!-- Subtitle Panel -->
+        <div class="subtitle-panel">
+            <div class="sub-table-container">
+                <table id="sub-table">
+                    <tr>
+                        <th style="width: 20%;">Thời gian</th>
+                        <th style="width: 40%;">Gốc (Trung)</th>
+                        <th style="width: 40%;">Dịch (Việt)</th>
+                    </tr>
+                    <!-- Data will be populated here -->
+                </table>
+            </div>
+            <button class="btn-update-timeline" onclick="syncTimeline()">💾 Cập nhật bản dịch sang Timeline</button>
+        </div>
+
+    </div>
+
+    <!-- TIMELINE SECTION -->
+    <div class="timeline-section" id="timeline-container">
+        <!-- Playhead -->
+        <div class="playhead" id="playhead"></div>
+
+        <!-- Video Track -->
+        <div class="track track-video">
+            <div class="track-label">🎞 VIDEO TRACK</div>
+            <div class="timeline-block block-vid" id="vid-block" style="display: none;">Video.mp4</div>
+        </div>
+
+        <!-- Sub Title Track -->
+        <div class="track track-sub" id="track-sub">
+            <div class="track-label">🔤 SUB TITLE TRACK</div>
+        </div>
+
+        <!-- Voice Over Track -->
+        <div class="track track-voice" id="track-voice">
+            <div class="track-label">🎙 VOICE OVER TRACK</div>
+        </div>
+    </div>
+
+    <!-- SCRIPT -->
+    <script>
+        const mockData = [
+            { start: 0.5, end: 3.2, src: "大家好，欢迎来到我的频道。", dest: "Xin chào mọi người, chào mừng đến với kênh của tôi." },
+            { start: 3.5, end: 6.8, src: "今天我们将展示一款非常棒的智能设备。", dest: "Hôm nay chúng ta sẽ xem một thiết bị thông minh tuyệt vời." },
+            { start: 7.0, end: 10.5, src: "别忘了点赞和订阅哦！", dest: "Đừng quên nhấn like và đăng ký nhé!" }
+        ];
+
+        function importVideo() {
+            alert("Đã mở hộp thoại chọn file video thành công!");
+            document.getElementById('vid-block').style.display = 'flex';
+        }
+
+        function runAIPipeline() {
+            const btnAI = document.getElementById('btn-ai');
+            btnAI.innerText = "⏳ Đang bóc băng (Whisper)...";
+            btnAI.style.pointerEvents = "none";
+
+            setTimeout(() => {
+                btnAI.innerText = "⏳ Đang dịch thuật (Gemini)...";
+                populateTable();
+            }, 1500);
+
+            setTimeout(() => {
+                btnAI.innerText = "⏳ Đang lồng tiếng (Edge-TTS)...";
+            }, 3000);
+
+            setTimeout(() => {
+                btnAI.innerText = "⚡ Chạy Tự Động Toàn Quy Trình (AI)";
+                btnAI.style.pointerEvents = "auto";
+                drawTimeline();
+            }, 4500);
+        }
+
+        function populateTable() {
+            const table = document.getElementById('sub-table');
+            // Reset table (keep header)
+            while(table.rows.length > 1) { table.deleteRow(1); }
+
+            mockData.forEach(sub => {
+                const row = table.insertRow();
+                row.innerHTML = `
+                    <td style="color: #666;">${sub.start.toFixed(2)}s -> ${sub.end.toFixed(2)}s</td>
+                    <td>${sub.src}</td>
+                    <td><input type="text" class="sub-input" value="${sub.dest}"></td>
+                `;
+            });
+        }
+
+        function drawTimeline() {
+            const trackSub = document.getElementById('track-sub');
+            const trackVoice = document.getElementById('track-voice');
+            
+            // Clear old blocks
+            document.querySelectorAll('.block-sub, .block-voice').forEach(e => e.remove());
+
+            const pixelPerSec = 40; // 40px per second
+            const offset = 160;     // offset for track label
+
+            mockData.forEach((sub, i) => {
+                const startX = offset + (sub.start * pixelPerSec);
+                const width = (sub.end - sub.start) * pixelPerSec;
+
+                // Sub Block
+                const subBlock = document.createElement('div');
+                subBlock.className = 'timeline-block block-sub';
+                subBlock.style.left = `${startX}px`;
+                subBlock.style.width = `${width}px`;
+                subBlock.innerText = sub.dest;
+                trackSub.appendChild(subBlock);
+
+                // Voice Block
+                const voiceBlock = document.createElement('div');
+                voiceBlock.className = 'timeline-block block-voice';
+                voiceBlock.style.left = `${startX}px`;
+                voiceBlock.style.width = `${width}px`;
+                voiceBlock.innerText = `Voice ${i+1}`;
+                trackVoice.appendChild(voiceBlock);
+            });
+
+            document.getElementById('playhead').style.display = 'block';
+        }
+
+        function syncTimeline() {
+            const inputs = document.querySelectorAll('.sub-input');
+            const subBlocks = document.querySelectorAll('.block-sub');
+            
+            if(inputs.length === 0 || subBlocks.length === 0) {
+                alert("Chưa có dữ liệu để đồng bộ!");
+                return;
+            }
+
+            inputs.forEach((input, index) => {
+                if(subBlocks[index]) {
+                    subBlocks[index].innerText = input.value;
+                }
+            });
+            alert("Đã cập nhật bản dịch sang Timeline thành công!");
+        }
+
+        function renderVideo() {
+            alert("Đã gửi lệnh thực thi FFmpeg Render hoàn thiện video!");
+        }
+    </script>
+</body>
+</html>
