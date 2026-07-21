@@ -2,65 +2,183 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Super Automation Dashboard - 4 Tools in 1</title>
+    <!-- Cực kỳ quan trọng để vô hiệu hóa zoom rác trên điện thoại -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Super Automation Dashboard</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #121212; color: #E0E0E0; display: flex; height: 100vh; overflow: hidden; }
-        
-        /* Cột Menu bên trái */
-        .sidebar { width: 260px; background-color: #1E1E1E; border-right: 1px solid #2D2D2D; display: flex; flex-direction: column; }
-        .sidebar-header { padding: 20px; font-size: 16px; font-weight: bold; color: #00FFCC; background-color: #161616; border-bottom: 1px solid #2D2D2D; text-align: center; }
-        
-        .tab-btn { padding: 15px 20px; text-align: left; background: none; border: none; color: #AAAAAA; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; border-left: 4px solid transparent; }
-        .tab-btn:hover { background-color: #252525; color: #FFFFFF; }
-        .tab-btn.active { background-color: #2A2A2A; color: #00FFCC; border-left-color: #00FFCC; }
+        /* Khai báo biến màu sắc */
+        :root {
+            --bg-main: #121212;
+            --bg-panel: #1E1E1E;
+            --text-main: #E0E0E0;
+            --accent: #00FFCC;
+            --border-color: #2D2D2D;
+        }
 
-        /* Vùng hiển thị nội dung Tab chính bên phải */
-        .content-area { flex: 1; background-color: #121212; position: relative; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        /* Cấu trúc Body dạng dọc cho Mobile */
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: var(--bg-main); 
+            color: var(--text-main); 
+            display: flex; 
+            flex-direction: column; /* Xếp chồng theo chiều dọc */
+            height: 100vh; 
+            overflow: hidden; 
+        }
+
+        /* 1. THANH TOP BAR (CHỈ HIỂN THỊ TRÊN MOBILE) */
+        .mobile-header {
+            display: flex; align-items: center; justify-content: space-between;
+            background-color: var(--bg-panel); 
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border-color);
+            z-index: 1000;
+        }
+        .mobile-header h2 { font-size: 16px; color: var(--accent); margin: 0; }
+        .hamburger {
+            background: none; border: none; color: white; font-size: 26px; cursor: pointer; padding: 0;
+        }
+
+        /* Vùng chứa nội dung chính và Menu trượt */
+        .main-wrapper { 
+            display: flex; 
+            flex: 1; 
+            position: relative; 
+            overflow: hidden; 
+        }
+
+        /* 2. THANH MENU BÊN TRÁI (SIDEBAR) */
+        .sidebar {
+            width: 260px; 
+            background-color: var(--bg-panel);
+            border-right: 1px solid var(--border-color);
+            display: flex; flex-direction: column;
+            position: absolute; /* Rút khỏi luồng để trượt nổi lên trên */
+            top: 0; bottom: 0; left: 0;
+            transform: translateX(-100%); /* Mặc định giấu sang trái */
+            transition: transform 0.3s ease-in-out;
+            z-index: 999;
+        }
+        /* Class để kéo menu ra */
+        .sidebar.open { transform: translateX(0); }
+        
+        /* Giấu tiêu đề menu trên mobile vì đã có ở Top Bar */
+        .sidebar-header { display: none; } 
+
+        .tab-btn {
+            padding: 15px 20px; text-align: left; background: none; border: none;
+            color: #AAAAAA; font-size: 14px; font-weight: 600; cursor: pointer;
+            transition: all 0.3s ease; border-left: 4px solid transparent;
+        }
+        .tab-btn:hover { background-color: #252525; color: #FFFFFF; }
+        .tab-btn.active { background-color: #2A2A2A; color: var(--accent); border-left-color: var(--accent); }
+
+        /* Lớp phủ màn hình mờ khi mở Menu */
+        .overlay {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6); z-index: 998;
+            display: none; opacity: 0; transition: opacity 0.3s ease;
+        }
+        .overlay.active { display: block; opacity: 1; }
+
+        /* 3. KHUNG HIỂN THỊ TOOL (IFRAME) */
+        .content-area { flex: 1; background-color: var(--bg-main); width: 100%; height: 100%; }
         .tab-frame { width: 100%; height: 100%; border: none; display: none; }
         .tab-frame.active { display: block; }
+
+        /* ========================================================= */
+        /* RESPONSIVE: QUAY LẠI GIAO DIỆN CŨ KHI MỞ TRÊN MÁY TÍNH PC */
+        /* ========================================================= */
+        @media (min-width: 900px) {
+            body { flex-direction: row; /* Dàn ngang */ }
+            .mobile-header { display: none; /* Giấu thanh Mobile */ }
+            .sidebar { 
+                position: static; /* Đính cứng menu vào màn hình */
+                transform: translateX(0); 
+                z-index: 1; 
+            }
+            .sidebar-header {
+                display: block; padding: 20px; font-size: 16px; font-weight: bold;
+                color: var(--accent); background-color: #161616;
+                border-bottom: 1px solid var(--border-color); text-align: center;
+            }
+            .overlay { display: none !important; }
+        }
     </style>
 </head>
 <body>
 
-    <!-- Thanh Menu Trái -->
-    <div class="sidebar">
-        <div class="sidebar-header">🚀 CONTROL PANEL</div>
-        <button class="tab-btn active" onclick="switchTab(0, 'tool1.html')">1. Facebook Automation</button>
-        <button class="tab-btn" onclick="switchTab(1, 'tool2.html')">2. Affiliate & Drive Auto</button>
-        <button class="tab-btn" onclick="switchTab(2, 'tool3.html')">3. Multi Down & AI Voice</button>
-        <button class="tab-btn" onclick="switchTab(3, 'tool4.html')">4. CapCut Video Editor</button>
+    <!-- Thanh Top Bar cho Điện thoại -->
+    <div class="mobile-header">
+        <h2>🚀 CONTROL PANEL</h2>
+        <button class="hamburger" onclick="toggleMenu()">☰</button>
     </div>
 
-    <!-- Khung chứa các file HTML độc lập -->
-    <div class="content-area">
-        <iframe id="frame0" class="tab-frame active" src="tool1.html"></iframe>
-        <iframe id="frame1" class="tab-frame" src="tool2.html"></iframe>
-        <iframe id="frame2" class="tab-frame" src="tool3.html"></iframe>
-        <iframe id="frame3" class="tab-frame" src="tool4.html"></iframe>
+    <div class="main-wrapper">
+        <!-- Thanh Menu Trái (Đã làm hiệu ứng trượt) -->
+        <div class="sidebar" id="sidebarMenu">
+            <div class="sidebar-header">🚀 CONTROL PANEL</div>
+            <button class="tab-btn active" onclick="switchTab(0, 'tool1.html')">1. Facebook Automation</button>
+            <button class="tab-btn" onclick="switchTab(1, 'tool2.html')">2. Affiliate & Drive Auto</button>
+            <button class="tab-btn" onclick="switchTab(2, 'tool3.html')">3. Multi Down & AI Voice</button>
+            <button class="tab-btn" onclick="switchTab(3, 'tool4.html')">4. CapCut Video Editor</button>
+        </div>
+
+        <!-- Màn che đen để bấm ra ngoài tự đóng Menu -->
+        <div class="overlay" id="menuOverlay" onclick="toggleMenu()"></div>
+
+        <!-- Vùng nhúng Tool -->
+        <div class="content-area">
+            <iframe id="frame0" class="tab-frame active" src="tool1.html"></iframe>
+            <iframe id="frame1" class="tab-frame" src="tool2.html"></iframe>
+            <iframe id="frame2" class="tab-frame" src="tool3.html"></iframe>
+            <iframe id="frame3" class="tab-frame" src="tool4.html"></iframe>
+        </div>
     </div>
+
+    <!-- NẾU BẠN DÙNG FILE script.js RỜI, THÌ ĐỂ DÒNG NÀY VÀ XÓA ĐOẠN <script> BÊN DƯỚI -->
+    <!-- <script src="script.js"></script> -->
 
     <script>
+        // KẾT HỢP LOGIC CŨ VÀ LOGIC MỞ MENU MỚI
         function switchTab(index, filename) {
-            // Chuyển đổi trạng thái nút bấm Menu
             const buttons = document.querySelectorAll('.tab-btn');
             buttons.forEach((btn, idx) => {
                 if (idx === index) btn.classList.add('active');
                 else btn.classList.remove('active');
             });
 
-            // Chuyển đổi hiển thị các Iframe tương ứng
             const frames = document.querySelectorAll('.tab-frame');
             frames.forEach((frame, idx) => {
                 if (idx === index) {
                     frame.classList.add('active');
-                    // Tự động load lại file nếu cần refresh data mới
-                    if(!frame.src.endsWith(filename)) frame.src = filename;
+                    if(!frame.src.endsWith(filename)) {
+                        frame.src = filename;
+                    }
                 } else {
                     frame.classList.remove('active');
                 }
             });
+
+            // Nếu đang mở trên điện thoại (Menu đang trượt ra), chọn Tool xong thì tự động đóng Menu lại cho gọn
+            if (window.innerWidth < 900) {
+                toggleMenu();
+            }
+        }
+
+        // HÀM MỚI: Đóng/Mở thanh Menu
+        function toggleMenu() {
+            const sidebar = document.getElementById('sidebarMenu');
+            const overlay = document.getElementById('menuOverlay');
+            
+            sidebar.classList.toggle('open');
+            if (sidebar.classList.contains('open')) {
+                overlay.classList.add('active');
+            } else {
+                overlay.classList.remove('active');
+            }
         }
     </script>
 </body>
