@@ -2,9 +2,9 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <!-- Thẻ meta cực kỳ quan trọng để giao diện tương thích với kích thước màn hình điện thoại -->
+    <!-- Cực kỳ quan trọng để giao diện tương thích hoàn hảo trên điện thoại -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tool 1 - Group (Mobile Pro)</title>
+    <title>Tool 1 - Group Automation (Mobile Pro)</title>
     <style>
         /* CSS Reset & Biến màu sắc chuẩn Dark Theme */
         :root {
@@ -15,7 +15,7 @@
             --btn-blue: #1f6aa5;
             --btn-green: #2ecc71;
             --btn-red: #e74c3c;
-            --accent: #3b82f6;
+            --accent: #00FFCC;
         }
 
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
@@ -24,7 +24,7 @@
         /* Cụm Tabs trên cùng */
         .top-tabs { display: flex; justify-content: center; gap: 5px; margin-bottom: 15px; }
         .top-tabs button { flex: 1; max-width: 120px; background-color: var(--bg-frame); color: var(--text-main); border: 1px solid var(--border-color); padding: 10px; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 13px; transition: 0.2s; }
-        .top-tabs button.active { background-color: var(--accent); border-color: var(--accent); color: white; }
+        .top-tabs button.active { background-color: var(--accent); border-color: var(--accent); color: #000; }
         
         h1 { text-align: center; margin-bottom: 20px; font-size: 20px; color: #fff; }
 
@@ -43,7 +43,7 @@
         .group-list-container { height: 250px; overflow-y: auto; background-color: #121212; border: 1px solid var(--border-color); border-radius: 4px; padding: 10px; }
         .group-item { display: flex; align-items: center; margin-bottom: 12px; }
         .group-item input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--accent); margin-right: 10px; }
-        .group-item label { font-size: 14px; cursor: pointer; flex: 1; word-break: break-word; }
+        .group-item label { font-size: 14px; cursor: pointer; flex: 1; word-break: break-word; color: #ccc; }
 
         /* Tùy chỉnh thanh cuộn Mobile */
         ::-webkit-scrollbar { width: 6px; }
@@ -91,7 +91,9 @@
 
     <!-- Tabs nội bộ -->
     <div class="top-tabs">
+        <button>LOGIN</button>
         <button class="active">GROUP</button>
+        <button>FANPAGE</button>
     </div>
 
     <h1>🚀 Group Automation</h1>
@@ -100,22 +102,20 @@
     <div class="account-selector">
         <label>Tài khoản đang điều khiển:</label>
         <select id="acc-select">
-            <option>Chưa có tài khoản nào Login</option>
-            <option>Bé mủm mỉm (Via1)</option>
+            <option>Đang tải tài khoản từ Google Sheets...</option>
         </select>
     </div>
 
-    <!-- Bố cục lưới tự động thích ứng (Mobile = Xếp chồng | PC = 3 Cột) -->
+    <!-- Bố cục lưới tự động thích ứng -->
     <div class="main-content">
         
         <!-- CỘT TRÁI: DANH SÁCH NHÓM -->
         <div class="card left-col">
             <div class="card-header">
-                <span>Danh sách nhóm (0)</span>
-                <button class="btn-start" style="padding: 8px 15px; font-size: 12px; background: var(--accent);" onclick="triggerScan()">Quét Lại</button>
+                <span id="group-count">Danh sách nhóm (0)</span>
+                <button class="btn-start" style="padding: 8px 15px; font-size: 12px; background: #3b82f6;" onclick="triggerScan()">Quét Lại</button>
             </div>
             <div class="group-list-container" id="group-list">
-                <!-- Javascript sẽ render danh sách checkbox nhóm vào đây -->
                 <div style="color: gray; text-align: center; margin-top: 50px;">Bấm Quét để lấy danh sách...</div>
             </div>
         </div>
@@ -134,7 +134,7 @@
             </div>
 
             <div class="config-group inline-config">
-                <input type="checkbox" id="chk-comment"> 
+                <input type="checkbox" id="chk-comment" checked> 
                 <label for="chk-comment" style="margin:0; color: white;">Comments dạo</label>
                 <span style="margin-left: 10px;">Số bài:</span>
                 <input type="number" id="num-cmt" value="5">
@@ -148,82 +148,176 @@
             <div class="config-group inline-config">
                 <span>Delay (giây):</span>
                 <input type="number" id="delay-min" value="250"> - <input type="number" id="delay-max" value="300">
-                <div class="timer-text" id="lbl-timer">Timer: --:--</div>
+                <div class="timer-text" id="lbl-timer">Nghỉ ngơi: Lướt Feed & Reels</div>
             </div>
 
             <div class="action-buttons">
                 <button class="btn-start" onclick="triggerStart()">THỰC THI</button>
-                <button class="btn-stop" onclick="triggerStop()">DỪNG</button>
+                <button class="btn-stop" onclick="triggerStop()">DỪNG KHẨN CẤP</button>
             </div>
         </div>
 
-        <!-- CỘT PHẢI & LOG TỔNG (Gộp chung trên Mobile cho gọn) -->
+        <!-- CỘT PHẢI & LOG TỔNG -->
         <div class="card right-col">
             <div class="card-header">
                 <span>Cửa sổ Log (VPS Console)</span>
             </div>
-            <textarea class="status-box" id="txt-global-status" readonly>[Hệ thống] Đang kết nối tới máy chủ VPS...&#10;</textarea>
+            <textarea class="status-box" id="txt-global-status" readonly>[Hệ thống] Đang khởi động trạm điều khiển...&#10;</textarea>
         </div>
 
     </div>
 
-    <!-- Logic JavaScript (Đã tích hợp tối ưu) -->
+    <!-- LOGIC KẾT NỐI API VPS & GOOGLE SHEETS -->
     <script>
+        // TẤT CẢ GIAO TIẾP VỚI VPS SẼ THÔNG QUA LINK NÀY (THAY LINK NGROK VÀO ĐÂY)
+        const API_URL = "https://divisive-dingbat-ion.ngrok-free.dev";
+
+        // 1. Tự động tải danh sách tài khoản từ Sheet khi vừa mở Web
+        window.onload = function() {
+            fetch(`${API_URL}/accounts`)
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    const select = document.getElementById('acc-select');
+                    select.innerHTML = ''; 
+                    data.accounts.forEach(acc => {
+                        select.innerHTML += `<option value="${acc}">${acc}</option>`;
+                    });
+                    writeLog("✅ Đã nạp danh sách Session từ Google Sheets.");
+                }
+            })
+            .catch(err => writeLog("❌ Lỗi: Không thể kết nối tới máy chủ VPS (Kiểm tra lại link Ngrok)."));
+            
+            // Khởi động đồng hồ kéo Log liên tục mỗi 2 giây
+            setInterval(pollLogs, 2000);
+        };
+
+        // 2. Kéo Log thời gian thực từ VPS
+        function pollLogs() {
+            fetch(`${API_URL}/logs`)
+            .then(res => res.text())
+            .then(logs => {
+                const logBox = document.getElementById('txt-global-status');
+                if (logBox.value !== logs && logs.trim() !== "") {
+                    logBox.value = logs;
+                    logBox.scrollTop = logBox.scrollHeight;
+                }
+            }).catch(err => {}); // Bỏ qua lỗi ngầm nếu rớt mạng tạm thời
+        }
+
+        // Hàm ghi log tạm thời ở giao diện Web
         function writeLog(msg) {
             const logBox = document.getElementById('txt-global-status');
             const time = new Date().toLocaleTimeString();
-            logBox.value += `[${time}] ${msg}\n`;
+            logBox.value += `[${time}] [WebApp] ${msg}\n`;
             logBox.scrollTop = logBox.scrollHeight;
         }
 
+        // 3. Nút QUÉT NHÓM
         function triggerScan() {
             const acc = document.getElementById('acc-select').value;
-            writeLog(`Bắt đầu cào danh sách nhóm cho ${acc}...`);
+            if(!acc || acc.includes("Đang tải")) {
+                alert("Vui lòng đợi tải tài khoản hoặc chọn 1 tài khoản!"); return;
+            }
             
-            // Giả lập API delay 1.5s
-            setTimeout(() => {
-                const groupList = document.getElementById('group-list');
-                groupList.innerHTML = '';
-                for(let i=1; i<=15; i++) {
-                    groupList.innerHTML += `
-                        <div class="group-item">
-                            <input type="checkbox" id="gr-${i}" value="url-${i}">
-                            <label for="gr-${i}">Hội Yêu Mèo Khắp Nơi - Nhóm ${i}</label>
-                        </div>
-                    `;
+            writeLog(`Đang ra lệnh VPS quét nhóm cho tài khoản: ${acc}...`);
+            const groupList = document.getElementById('group-list');
+            groupList.innerHTML = `<div style="color: var(--accent); text-align: center; margin-top: 50px;">Đang quét ngầm (Khoảng 30-60s)...<br>Vui lòng không tắt trang.</div>`;
+            
+            fetch(`${https://divisive-dingbat-ion.ngrok-free.dev}/scan-groups`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ account: acc })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    groupList.innerHTML = ''; 
+                    data.groups.forEach((group, index) => {
+                        groupList.innerHTML += `
+                            <div class="group-item">
+                                <input type="checkbox" id="gr-${index}" value="${group.url}">
+                                <label for="gr-${index}">${group.name}</label>
+                            </div>
+                        `;
+                    });
+                    document.getElementById('group-count').innerText = `Danh sách nhóm (${data.groups.length})`;
+                } else {
+                    groupList.innerHTML = `<div style="color: var(--btn-red); text-align: center; margin-top: 50px;">Lỗi: ${data.message}</div>`;
                 }
-                document.querySelector('.card-header span').innerText = `Danh sách nhóm (15)`;
-                writeLog(`✅ Quét thành công 15 nhóm!`);
-            }, 1500);
+            })
+            .catch(err => {
+                groupList.innerHTML = `<div style="color: var(--btn-red); text-align: center; margin-top: 50px;">Lỗi kết nối VPS. Xem chi tiết ở Console Log.</div>`;
+                writeLog(`❌ Lỗi Network khi quét nhóm: ${err.message}`);
+            });
         }
 
+        // 4. Nút THỰC THI (Xếp hàng tiến trình)
+        function triggerStart() {
+            const doPost = document.getElementById('chk-post').checked;
+            const doCmt = document.getElementById('chk-comment').checked;
+            const acc = document.getElementById('acc-select').value;
+            
+            if(!doPost && !doCmt) {
+                alert("❌ Vui lòng chọn ít nhất 1 hành động (Post hoặc Comment)!");
+                return;
+            }
+
+            const selectedGroups = [];
+            document.querySelectorAll('.group-item input:checked').forEach(checkbox => {
+                const label = checkbox.nextElementSibling.innerText;
+                selectedGroups.push({ url: checkbox.value, name: label });
+            });
+
+            if (selectedGroups.length === 0) {
+                alert("❌ Vui lòng tick chọn ít nhất 1 nhóm ở cột bên trái!");
+                return;
+            }
+
+            const payload = {
+                account: acc,
+                groups: selectedGroups,
+                content: document.getElementById('txt-content').value,
+                num_cmt: parseInt(document.getElementById('num-cmt').value),
+                delay_min: parseInt(document.getElementById('delay-min').value),
+                delay_max: parseInt(document.getElementById('delay-max').value),
+                do_post: doPost,
+                do_comment: doCmt
+            };
+
+            writeLog(`Đang đẩy lệnh chạy ${acc} lên Hàng đợi VPS...`);
+
+            fetch(`${API_URL}/start-task`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === 'queued') {
+                    // Bỏ chọn các checkbox để sẵn sàng set tài khoản khác
+                    document.querySelectorAll('.group-item input:checked').forEach(cb => cb.checked = false);
+                    alert(`Đã xếp hàng tác vụ cho ${acc} thành công!`);
+                }
+            })
+            .catch(err => writeLog(`❌ Lỗi khi gửi lệnh Thực thi: ${err.message}`));
+        }
+
+        // 5. Nút DỪNG
+        function triggerStop() {
+            writeLog("⚠️ Đã gửi tín hiệu ngắt Hàng đợi khẩn cấp lên VPS!");
+            // (Bạn có thể bổ sung API `/api/stop-task` trên VPS sau)
+        }
+
+        // Các hàm xử lý giao diện phụ
         function triggerAttach() {
-            document.getElementById('lbl-media').innerText = "Đã tải lên 2 tệp media";
-            document.getElementById('lbl-media').style.color = "var(--btn-green)";
+            document.getElementById('lbl-media').innerText = "Tính năng đính kèm đang kết nối...";
+            document.getElementById('lbl-media').style.color = "var(--accent)";
         }
 
         function triggerClear() {
             document.getElementById('lbl-media').innerText = "Chưa chọn file...";
             document.getElementById('lbl-media').style.color = "gray";
-        }
-
-        function triggerStart() {
-            const doPost = document.getElementById('chk-post').checked;
-            const doCmt = document.getElementById('chk-comment').checked;
-            
-            if(!doPost && !doCmt) {
-                writeLog("❌ LỖI: Vui lòng chọn ít nhất 1 hành động (Post hoặc Comment)!");
-                return;
-            }
-
-            writeLog("⏳ Đã đẩy lệnh lên VPS. Đang mở trình duyệt ngầm...");
-            setTimeout(() => {
-                writeLog("➤ Đang xử lý nhóm 1/15: Hội Yêu Mèo Khắp Nơi...");
-            }, 1000);
-        }
-
-        function triggerStop() {
-            writeLog("⚠️ Đã gửi tín hiệu ngắt Playwright khẩn cấp!");
         }
     </script>
 </body>
