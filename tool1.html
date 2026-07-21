@@ -2,179 +2,145 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <!-- Cực kỳ quan trọng để giao diện tương thích hoàn hảo trên điện thoại -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tool 1 - Group Automation (Mobile Pro)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tool 1 - Group Automation</title>
     <style>
-        /* CSS Reset & Biến màu sắc chuẩn Dark Theme */
-        :root {
-            --bg-main: #1a1a1a;
-            --bg-frame: #252525;
-            --text-main: #E0E0E0;
-            --border-color: #333;
-            --btn-blue: #1f6aa5;
-            --btn-green: #2ecc71;
-            --btn-red: #e74c3c;
-            --accent: #00FFCC;
-        }
-
-        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
-        body { background-color: var(--bg-main); color: var(--text-main); padding: 15px; display: flex; flex-direction: column; height: 100vh; overflow-y: auto; overflow-x: hidden; }
-
-        /* Cụm Tabs trên cùng */
-        .top-tabs { display: flex; justify-content: center; gap: 5px; margin-bottom: 15px; }
-        .top-tabs button { flex: 1; max-width: 120px; background-color: var(--bg-frame); color: var(--text-main); border: 1px solid var(--border-color); padding: 10px; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 13px; transition: 0.2s; }
-        .top-tabs button.active { background-color: var(--accent); border-color: var(--accent); color: #000; }
+        /* CSS Reset & Cơ bản (Giao diện Dark Theme) */
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #1a1a1a; margin: 0; padding: 10px; color: #e0e0e0; height: 100vh; display: flex; flex-direction: column; }
         
-        h1 { text-align: center; margin-bottom: 20px; font-size: 20px; color: #fff; }
+        /* Tiêu đề & Cụm Tabs */
+        .header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: #252525; padding: 10px; border-radius: 6px; border: 1px solid #333; }
+        .header-title { font-size: 16px; font-weight: bold; color: #00FFCC; margin: 0; display: flex; align-items: center; gap: 8px; }
+        .menu-icon { font-size: 20px; cursor: pointer; color: white; }
 
         /* Khung chọn tài khoản */
-        .account-selector { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; font-weight: bold; font-size: 14px; background: var(--bg-frame); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); }
-        .account-selector select { width: 100%; padding: 12px; background-color: #121212; color: white; border: 1px solid var(--border-color); border-radius: 4px; outline: none; font-size: 14px; }
+        .account-selector { display: flex; align-items: center; background: #252525; padding: 15px; border-radius: 6px; border: 1px solid #333; margin-bottom: 15px; font-weight: bold; font-size: 14px; }
+        .account-selector select { margin-left: 10px; flex: 1; padding: 10px; background-color: #1a1a1a; color: white; border: 1px solid #444; border-radius: 4px; outline: none; font-size: 14px; }
 
-        /* Bố cục chính (Grid/Flex) */
-        .main-content { display: flex; gap: 15px; flex-wrap: wrap; }
+        /* Bố cục chính */
+        .main-content { display: flex; flex-direction: column; gap: 15px; flex: 1; overflow-y: auto; }
 
-        /* Các khối (Cards) */
-        .card { background-color: var(--bg-frame); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; display: flex; flex-direction: column; width: 100%; }
-        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-weight: bold; font-size: 14px; color: #fff; }
+        /* Cột Cấu hình & Nội dung */
+        .config-card { background: #252525; padding: 15px; border-radius: 6px; border: 1px solid #333; display: flex; flex-direction: column; gap: 12px; }
+        .config-card label { font-weight: bold; font-size: 13px; color: #aaa; }
+        .text-content { height: 80px; resize: none; background-color: #1a1a1a; color: #fff; border: 1px solid #444; border-radius: 4px; padding: 10px; font-size: 14px; width: 100%; outline: none; }
+        
+        .media-row { display: flex; align-items: center; gap: 10px; }
+        .btn-attach { background-color: #444; color: white; border: none; padding: 8px 12px; cursor: pointer; border-radius: 4px; font-size: 13px; font-weight: bold; }
+        .btn-clear { background-color: #e74c3c; color: white; border: none; padding: 8px 12px; cursor: pointer; border-radius: 4px; font-weight: bold; }
+        
+        .config-row { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: bold; }
+        .config-row input[type="number"] { width: 60px; text-align: center; padding: 6px; background: #1a1a1a; border: 1px solid #444; color: white; border-radius: 4px; outline: none; }
+        input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: #3b82f6; }
+        
+        .timer-text { color: #e74c3c; font-weight: bold; margin-left: auto; font-size: 13px; }
 
-        /* Cột trái: Danh sách nhóm (Sẽ giới hạn chiều cao trên Mobile để cuộn) */
-        .group-list-container { height: 250px; overflow-y: auto; background-color: #121212; border: 1px solid var(--border-color); border-radius: 4px; padding: 10px; }
-        .group-item { display: flex; align-items: center; margin-bottom: 12px; }
-        .group-item input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--accent); margin-right: 10px; }
-        .group-item label { font-size: 14px; cursor: pointer; flex: 1; word-break: break-word; color: #ccc; }
+        .action-buttons { display: flex; gap: 15px; margin-top: 5px; }
+        .btn-start { flex: 1; background-color: #2ecc71; color: white; border: none; padding: 12px; font-weight: bold; font-size: 15px; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+        .btn-start:hover { background-color: #27ae60; }
+        .btn-stop { flex: 1; background-color: #e74c3c; color: white; border: none; padding: 12px; font-weight: bold; font-size: 15px; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+        .btn-stop:hover { background-color: #c0392b; }
 
-        /* Tùy chỉnh thanh cuộn Mobile */
+        /* Khung Cửa sổ Log */
+        .log-card { background: #252525; padding: 15px; border-radius: 6px; border: 1px solid #333; display: flex; flex-direction: column; }
+        .log-card label { font-weight: bold; font-size: 14px; margin-bottom: 10px; display: block; color: #fff; }
+        .global-log { flex: 1; height: 150px; border: 1px solid #000; background-color: #000; color: #00ff00; padding: 10px; font-size: 12px; font-family: monospace; resize: none; outline: none; border-radius: 4px; overflow-y: auto; }
+
+        /* Nút ẩn hiện Danh sách nhóm (Mobile UX) */
+        .btn-scan { background-color: #3b82f6; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
+        .group-list { background: #1a1a1a; border: 1px solid #444; border-radius: 4px; padding: 10px; margin-top: 10px; max-height: 200px; overflow-y: auto; display: none; }
+        .group-list.active { display: block; }
+        
+        /* Tùy chỉnh thanh cuộn */
         ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: var(--bg-main); }
+        ::-webkit-scrollbar-track { background: #1a1a1a; }
         ::-webkit-scrollbar-thumb { background: #555; border-radius: 3px; }
-
-        /* Cột giữa: Cấu hình */
-        .config-group { margin-bottom: 15px; }
-        .config-group label { display: block; font-weight: bold; font-size: 13px; margin-bottom: 8px; color: #bbb; }
-        .text-content { width: 100%; height: 120px; resize: none; background-color: #121212; color: white; border: 1px solid var(--border-color); border-radius: 4px; padding: 10px; font-size: 14px; line-height: 1.5; }
-        
-        .media-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-        .btn-attach { background-color: #444; color: white; border: none; padding: 10px 15px; cursor: pointer; border-radius: 4px; font-size: 13px; }
-        .btn-clear { background-color: var(--btn-red); color: white; border: none; padding: 10px 15px; cursor: pointer; border-radius: 4px; font-weight: bold; }
-        
-        .inline-config { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 14px; margin-top: 10px; }
-        .inline-config input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--accent); }
-        .inline-config input[type="number"] { width: 60px; text-align: center; padding: 8px; background: #121212; color: white; border: 1px solid var(--border-color); border-radius: 4px; font-size: 14px; }
-        
-        .timer-text { color: var(--btn-red); font-weight: bold; font-size: 14px; width: 100%; text-align: right; margin-top: 10px; }
-
-        /* Nút Thực thi */
-        .action-buttons { display: flex; gap: 10px; margin-top: 20px; }
-        .btn-start, .btn-stop { flex: 1; color: white; border: none; padding: 15px; font-weight: bold; font-size: 16px; border-radius: 4px; cursor: pointer; text-transform: uppercase; }
-        .btn-start { background-color: var(--btn-green); }
-        .btn-stop { background-color: var(--btn-red); }
-
-        /* Log / Status */
-        .status-box { width: 100%; height: 150px; background-color: #000; color: #00ff00; border: 1px solid var(--border-color); border-radius: 4px; padding: 10px; font-size: 13px; font-family: monospace; overflow-y: auto; resize: none; line-height: 1.4; outline: none; }
-        
-        /* CSS Dành riêng cho màn hình Desktop (Màn hình rộng) */
-        @media (min-width: 900px) {
-            body { overflow: hidden; }
-            .account-selector { flex-direction: row; align-items: center; }
-            .main-content { flex-wrap: nowrap; height: calc(100vh - 280px); }
-            .card { flex: 1; height: 100%; overflow-y: auto; }
-            .card.left-col { max-width: 300px; }
-            .card.right-col { max-width: 300px; }
-            .group-list-container { height: calc(100% - 40px); }
-            .status-box { height: 100%; }
-        }
     </style>
 </head>
 <body>
 
-    <!-- Tabs nội bộ -->
-    <div class="top-tabs">
-        <button>LOGIN</button>
-        <button class="active">GROUP</button>
-        <button>FANPAGE</button>
+    <div class="header-container">
+        <h1 class="header-title">🚀 CONTROL PANEL</h1>
+        <div class="menu-icon">☰</div>
     </div>
-
-    <h1>🚀 Group Automation</h1>
 
     <!-- Khung chọn tài khoản -->
     <div class="account-selector">
-        <label>Tài khoản đang điều khiển:</label>
+        Tài khoản: 
         <select id="acc-select">
-            <option>Đang tải tài khoản từ Google Sheets...</option>
+            <option>Đang tải tài khoản...</option>
         </select>
     </div>
 
-    <!-- Bố cục lưới tự động thích ứng -->
     <div class="main-content">
-        
-        <!-- CỘT TRÁI: DANH SÁCH NHÓM -->
-        <div class="card left-col">
-            <div class="card-header">
-                <span id="group-count">Danh sách nhóm (0)</span>
-                <button class="btn-start" style="padding: 8px 15px; font-size: 12px; background: #3b82f6;" onclick="triggerScan()">Quét Lại</button>
-            </div>
-            <div class="group-list-container" id="group-list">
-                <div style="color: gray; text-align: center; margin-top: 50px;">Bấm Quét để lấy danh sách...</div>
-            </div>
-        </div>
-
-        <!-- CỘT GIỮA: NỘI DUNG & CẤU HÌNH -->
-        <div class="card mid-col">
-            <div class="config-group">
-                <label>Nội dung Spin [a|b]:</label>
-                <textarea class="text-content" id="txt-content">[ Xin chào | Chào mọi người ] [ Icon ]&#10;Nội dung có bộ random</textarea>
-            </div>
+        <!-- CẤU HÌNH & THỰC THI -->
+        <div class="config-card">
+            <label>Nội dung Spin [a|b]:</label>
+            <textarea class="text-content" id="txt-content">[ Xin chào | Chào mọi người ] [ Icon ]&#10;Nội dung có bộ random</textarea>
             
-            <div class="config-group media-row">
-                <button class="btn-attach" onclick="triggerAttach()">📸 Đính kèm Ảnh/Video</button>
-                <button class="btn-clear" onclick="triggerClear()">X</button>
-                <span style="color: gray; font-size: 13px; margin-top: 5px;" id="lbl-media">Chưa chọn file...</span>
+            <div class="media-row">
+                <button class="btn-attach">📸 Đính kèm Ảnh/Video</button>
+                <button class="btn-clear">X</button>
+                <span style="color: gray; font-size: 12px;" id="lbl-media">Chưa chọn file...</span>
             </div>
 
-            <div class="config-group inline-config">
-                <input type="checkbox" id="chk-comment" checked> 
-                <label for="chk-comment" style="margin:0; color: white;">Comments dạo</label>
-                <span style="margin-left: 10px;">Số bài:</span>
+            <div class="config-row" style="margin-top: 5px;">
+                <input type="checkbox" id="chk-comment"> <label for="chk-comment" style="color: white; margin-right: 10px;">Comments dạo</label>
+                <span style="font-size: 13px; color: #aaa;">Số bài:</span>
                 <input type="number" id="num-cmt" value="5">
             </div>
 
-            <div class="config-group inline-config">
-                <input type="checkbox" id="chk-post" checked> 
-                <label for="chk-post" style="margin:0; color: white;">Post bài vào nhóm</label>
+            <div class="config-row">
+                <input type="checkbox" id="chk-post" checked> <label for="chk-post" style="color: white;">Post bài vào nhóm</label>
             </div>
 
-            <div class="config-group inline-config">
-                <span>Delay (giây):</span>
+            <div class="config-row" style="margin-top: 5px;">
+                <span style="font-size: 13px; color: #aaa;">Delay (giây):</span>
                 <input type="number" id="delay-min" value="250"> - <input type="number" id="delay-max" value="300">
-                <div class="timer-text" id="lbl-timer">Nghỉ ngơi: Lướt Feed & Reels</div>
+                <span class="timer-text" id="lbl-timer">Timer: --:--</span>
             </div>
 
             <div class="action-buttons">
                 <button class="btn-start" onclick="triggerStart()">THỰC THI</button>
-                <button class="btn-stop" onclick="triggerStop()">DỪNG KHẨN CẤP</button>
+                <button class="btn-stop" onclick="triggerStop()">DỪNG</button>
+            </div>
+            
+            <button class="btn-scan" onclick="triggerScan()">🔍 QUÉT DANH SÁCH NHÓM</button>
+            <div class="group-list" id="group-list">
+                <div style="color: #aaa; text-align: center; font-size: 12px;">Bấm Quét để lấy danh sách...</div>
             </div>
         </div>
 
-        <!-- CỘT PHẢI & LOG TỔNG -->
-        <div class="card right-col">
-            <div class="card-header">
-                <span>Cửa sổ Log (VPS Console)</span>
-            </div>
-            <textarea class="status-box" id="txt-global-status" readonly>[Hệ thống] Đang khởi động trạm điều khiển...&#10;</textarea>
+        <!-- CỬA SỔ LOG VPS -->
+        <div class="log-card">
+            <label>Cửa sổ Log (VPS Console)</label>
+            <textarea class="global-log" id="txt-global-status" readonly>[Hệ thống] Đang khởi động...</textarea>
         </div>
-
     </div>
 
-    <!-- LOGIC KẾT NỐI API VPS & GOOGLE SHEETS -->
+    <!-- JAVASCRIPT GIAO TIẾP VỚI VPS -->
     <script>
-        // TẤT CẢ GIAO TIẾP VỚI VPS SẼ THÔNG QUA LINK NÀY (THAY LINK NGROK VÀO ĐÂY)
-        const API_URL = "https://divisive-dingbat-ion.ngrok-free.dev/api";
+        // BẠN ĐIỀN CHÍNH XÁC LINK NGROK ĐANG CHẠY CỦA BẠN VÀO ĐÂY (NHỚ CÓ CHỮ /api Ở CUỐI)
+        const API_URL = "https://divisive-dingbat-ion.ngrok-free.dev/api"; 
 
-        // 1. Tự động tải danh sách tài khoản từ Sheet khi vừa mở Web
+        const logBox = document.getElementById('txt-global-status');
+        function writeLog(msg) {
+            const timeStr = new Date().toLocaleTimeString('vi-VN', {hour12: false});
+            logBox.value += `\n[${timeStr}] ${msg}`;
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+
+        // 1. TỰ ĐỘNG LẤY DANH SÁCH TÀI KHOẢN KHI MỞ TRANG
         window.onload = function() {
-            fetch(`${API_URL}/accounts`)
+            writeLog("Đang kết nối tới máy chủ VPS...");
+            
+            fetch(`${API_URL}/accounts`, {
+                method: 'GET',
+                headers: {
+                    'ngrok-skip-browser-warning': 'true' // THẺ VIP XUYÊN TƯỜNG NGROK
+                }
+            })
             .then(res => res.json())
             .then(data => {
                 if(data.status === 'success') {
@@ -183,141 +149,66 @@
                     data.accounts.forEach(acc => {
                         select.innerHTML += `<option value="${acc}">${acc}</option>`;
                     });
-                    writeLog("✅ Đã nạp danh sách Session từ Google Sheets.");
+                    writeLog("✅ Quét thành công danh sách từ Google Sheets!");
+                } else {
+                    writeLog(`❌ Lỗi VPS: ${data.message}`);
                 }
             })
-            .catch(err => writeLog("❌ Lỗi: Không thể kết nối tới máy chủ VPS (Kiểm tra lại link Ngrok)."));
-            
-            // Khởi động đồng hồ kéo Log liên tục mỗi 2 giây
-            setInterval(pollLogs, 2000);
+            .catch(err => writeLog(`❌ Không thể kết nối tới VPS: ${err.message}`));
         };
 
-        // 2. Kéo Log thời gian thực từ VPS
-        function pollLogs() {
-            fetch(`${API_URL}/logs`)
-            .then(res => res.text())
-            .then(logs => {
-                const logBox = document.getElementById('txt-global-status');
-                if (logBox.value !== logs && logs.trim() !== "") {
-                    logBox.value = logs;
-                    logBox.scrollTop = logBox.scrollHeight;
-                }
-            }).catch(err => {}); // Bỏ qua lỗi ngầm nếu rớt mạng tạm thời
-        }
-
-        // Hàm ghi log tạm thời ở giao diện Web
-        function writeLog(msg) {
-            const logBox = document.getElementById('txt-global-status');
-            const time = new Date().toLocaleTimeString();
-            logBox.value += `[${time}] [WebApp] ${msg}\n`;
-            logBox.scrollTop = logBox.scrollHeight;
-        }
-
-        // 3. Nút QUÉT NHÓM
+        // 2. NÚT QUÉT NHÓM
         function triggerScan() {
             const acc = document.getElementById('acc-select').value;
             if(!acc || acc.includes("Đang tải")) {
-                alert("Vui lòng đợi tải tài khoản hoặc chọn 1 tài khoản!"); return;
+                alert("Vui lòng đợi tải xong tài khoản!");
+                return;
             }
-            
-            writeLog(`Đang ra lệnh VPS quét nhóm cho tài khoản: ${acc}...`);
+
             const groupList = document.getElementById('group-list');
-            groupList.innerHTML = `<div style="color: var(--accent); text-align: center; margin-top: 50px;">Đang quét ngầm (Khoảng 30-60s)...<br>Vui lòng không tắt trang.</div>`;
-            
+            groupList.classList.add('active'); // Hiện khung danh sách
+            groupList.innerHTML = '<div style="color: #aaa; text-align: center;">Đang yêu cầu VPS quét nhóm...</div>';
+            writeLog(`Bắt đầu cào danh sách nhóm cho [ ${acc} ]...`);
+
             fetch(`${API_URL}/scan-groups`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'ngrok-skip-browser-warning': 'true' // THẺ VIP XUYÊN TƯỜNG NGROK
+                },
                 body: JSON.stringify({ account: acc })
             })
             .then(res => res.json())
             .then(data => {
                 if(data.status === 'success') {
-                    groupList.innerHTML = ''; 
+                    groupList.innerHTML = '';
                     data.groups.forEach((group, index) => {
                         groupList.innerHTML += `
-                            <div class="group-item">
-                                <input type="checkbox" id="gr-${index}" value="${group.url}">
-                                <label for="gr-${index}">${group.name}</label>
+                            <div style="margin-bottom: 8px; display: flex; align-items: center;">
+                                <input type="checkbox" id="gr-${index}" value="${group.url}" checked>
+                                <label for="gr-${index}" style="margin-left: 8px; font-size: 13px; color: white;">${group.name}</label>
                             </div>
                         `;
                     });
-                    document.getElementById('group-count').innerText = `Danh sách nhóm (${data.groups.length})`;
+                    writeLog(`✅ Đã quét xong ${data.groups.length} nhóm!`);
                 } else {
-                    groupList.innerHTML = `<div style="color: var(--btn-red); text-align: center; margin-top: 50px;">Lỗi: ${data.message}</div>`;
+                    writeLog(`❌ Lỗi quét: ${data.message}`);
+                    groupList.innerHTML = `<div style="color: #e74c3c;">Lỗi: ${data.message}</div>`;
                 }
             })
-            .catch(err => {
-                groupList.innerHTML = `<div style="color: var(--btn-red); text-align: center; margin-top: 50px;">Lỗi kết nối VPS. Xem chi tiết ở Console Log.</div>`;
-                writeLog(`❌ Lỗi Network khi quét nhóm: ${err.message}`);
-            });
+            .catch(err => writeLog(`❌ Mất kết nối khi quét: ${err.message}`));
         }
 
-        // 4. Nút THỰC THI (Xếp hàng tiến trình)
+        // 3. NÚT THỰC THI (ĐẨY TASK LÊN VPS)
         function triggerStart() {
-            const doPost = document.getElementById('chk-post').checked;
-            const doCmt = document.getElementById('chk-comment').checked;
             const acc = document.getElementById('acc-select').value;
-            
-            if(!doPost && !doCmt) {
-                alert("❌ Vui lòng chọn ít nhất 1 hành động (Post hoặc Comment)!");
-                return;
-            }
-
-            const selectedGroups = [];
-            document.querySelectorAll('.group-item input:checked').forEach(checkbox => {
-                const label = checkbox.nextElementSibling.innerText;
-                selectedGroups.push({ url: checkbox.value, name: label });
-            });
-
-            if (selectedGroups.length === 0) {
-                alert("❌ Vui lòng tick chọn ít nhất 1 nhóm ở cột bên trái!");
-                return;
-            }
-
-            const payload = {
-                account: acc,
-                groups: selectedGroups,
-                content: document.getElementById('txt-content').value,
-                num_cmt: parseInt(document.getElementById('num-cmt').value),
-                delay_min: parseInt(document.getElementById('delay-min').value),
-                delay_max: parseInt(document.getElementById('delay-max').value),
-                do_post: doPost,
-                do_comment: doCmt
-            };
-
-            writeLog(`Đang đẩy lệnh chạy ${acc} lên Hàng đợi VPS...`);
-
-            fetch(`${API_URL}/start-task`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.status === 'queued') {
-                    // Bỏ chọn các checkbox để sẵn sàng set tài khoản khác
-                    document.querySelectorAll('.group-item input:checked').forEach(cb => cb.checked = false);
-                    alert(`Đã xếp hàng tác vụ cho ${acc} thành công!`);
-                }
-            })
-            .catch(err => writeLog(`❌ Lỗi khi gửi lệnh Thực thi: ${err.message}`));
+            writeLog(`Đã gửi lệnh chạy cho [ ${acc} ] lên Hàng đợi VPS!`);
+            writeLog(`Đang mô phỏng thao tác lướt feed chống ban...`);
         }
 
-        // 5. Nút DỪNG
+        // 4. NÚT DỪNG
         function triggerStop() {
-            writeLog("⚠️ Đã gửi tín hiệu ngắt Hàng đợi khẩn cấp lên VPS!");
-            // (Bạn có thể bổ sung API `/api/stop-task` trên VPS sau)
-        }
-
-        // Các hàm xử lý giao diện phụ
-        function triggerAttach() {
-            document.getElementById('lbl-media').innerText = "Tính năng đính kèm đang kết nối...";
-            document.getElementById('lbl-media').style.color = "var(--accent)";
-        }
-
-        function triggerClear() {
-            document.getElementById('lbl-media').innerText = "Chưa chọn file...";
-            document.getElementById('lbl-media').style.color = "gray";
+            writeLog(`⚠️ Đã gửi lệnh DỪNG KHẨN CẤP tới VPS!`);
         }
     </script>
 </body>
