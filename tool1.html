@@ -224,7 +224,7 @@
             const groupList = document.getElementById('group-list');
             groupList.innerHTML = `<div style="color: var(--accent); text-align: center; margin-top: 50px;">Đang quét ngầm (Khoảng 30-60s)...<br>Vui lòng không tắt trang.</div>`;
             
-            fetch(`${https://divisive-dingbat-ion.ngrok-free.dev}/scan-groups`, {
+            fetch(`${API_URL}/scan-groups`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ account: acc })
