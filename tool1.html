@@ -119,10 +119,13 @@
         </div>
     </div>
 
+    <!-- KẾT NỐI FILE CẤU HÌNH TỪ GITHUB -->
+    <script src="config.js"></script>
+
     <!-- JAVASCRIPT GIAO TIẾP VỚI VPS -->
     <script>
-        // BẠN ĐIỀN CHÍNH XÁC LINK NGROK ĐANG CHẠY CỦA BẠN VÀO ĐÂY (NHỚ CÓ CHỮ /api Ở CUỐI)
-        const API_URL = "https://divisive-dingbat-ion.ngrok-free.dev/api"; 
+        // LẤY LINK API TỪ FILE CONFIG
+        const API_URL = APP_CONFIG.API_URL; 
 
         const logBox = document.getElementById('txt-global-status');
         function writeLog(msg) {
